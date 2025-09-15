@@ -13,6 +13,8 @@ using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs;
 using Content.Shared.Damage;
 using Content.Shared.Mobs.Systems;
+using Robust.Server.GameObjects;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
@@ -28,6 +30,7 @@ namespace Content.Server.Abilities.Psionics
         [Dependency] private readonly PopupSystem _popupSystem = default!;
         [Dependency] private readonly MindSystem _mindSystem = default!;
         [Dependency] private readonly MetaDataSystem _metaDataSystem = default!;
+        [Dependency] private readonly VisibilitySystem _visibility = default!;
 
         public override void Initialize()
         {
@@ -215,8 +218,8 @@ namespace Content.Server.Abilities.Psionics
 
         public void GetTrapped(EntityUid uid)
         {
-
-            _popupSystem.PopupEntity(Loc.GetString("mindswap-trapped"), uid, uid, Shared.Popups.PopupType.LargeCaution);
+            var trappedPopup = Loc.GetString("mindswap-trapped");
+            
             var perfComp = EnsureComp<MindSwappedComponent>(uid);
             _actions.RemoveAction(perfComp.MindSwapReturnActionEntity);
 
@@ -226,9 +229,20 @@ namespace Content.Server.Abilities.Psionics
                 RemComp<StealthComponent>(uid);
                 EnsureComp<SpeechComponent>(uid);
                 EnsureComp<DispellableComponent>(uid);
+
+                // DeltaV - begin of trapped telegnosis visibility
+                if (TryComp<VisibilityComponent>(uid, out var visComp))
+                {
+                    _visibility.SetLayer((uid, visComp), 1);
+                }
+                trappedPopup = Loc.GetString("mindswap-trapped-telegnosis"); // ensure they know they can speak to people now
+                // DeltaV - end of trapped telegnosis visibility
+
                 _metaDataSystem.SetEntityName(uid, Loc.GetString("telegnostic-trapped-entity-name"));
                 _metaDataSystem.SetEntityDescription(uid, Loc.GetString("telegnostic-trapped-entity-desc"));
             }
+
+            _popupSystem.PopupEntity(trappedPopup, uid, uid, Shared.Popups.PopupType.LargeCaution);
         }
     }
 }
