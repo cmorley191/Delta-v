@@ -4,6 +4,7 @@ using Content.Server.NPC.Systems;
 using Content.Shared._DV.RemoteControl.Components;
 using Content.Shared._DV.RemoteControl.Events;
 using Content.Shared._DV.RemoteControl.EntitySystems;
+using Content.Shared.Clothing.Components;
 using Content.Shared.Pointing;
 using Content.Shared.Timing;
 using Robust.Server.Audio;
@@ -138,15 +139,17 @@ public sealed partial class RemoteControlSystem : SharedRemoteControlSystem
             return false;
 
         Entity<RemoteControlComponent> control = (holder.Comp.Control, controlComp);
-        var action = Actions.GetAction(control.Comp.ToggleActionEntid);
-        if (!action.HasValue)
+        
+        var toggleAction = Actions.GetAction(CompOrNull<ToggleClothingComponent>(control.Owner)?.ActionEntity);
+
+        if (
+            UseDelay.IsDelayed(control.Owner) 
+            || (toggleAction.HasValue && Actions.IsCooldownActive(toggleAction.Value.Comp))
+        )
             return false;
 
-        if (Actions.IsCooldownActive(action.Value))
-            return false;
-
-        Actions.SetCooldown(control.Comp.ToggleActionEntid, control.Comp.Cooldown);
         UseDelay.TryResetDelay(control.Owner);
+        Actions.SetCooldown(toggleAction?.AsNullable(), control.Comp.Cooldown);
 
         var ev = getEvent(control);
         if (recipient.HasValue)

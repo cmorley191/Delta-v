@@ -3,6 +3,7 @@ using Content.Shared.Clothing;
 using Content.Shared.Clothing.Components;
 using Content.Shared.Inventory;
 using Content.Shared.Item.ItemToggle;
+using Content.Shared.Item.ItemToggle.Components; // DeltaV
 using Content.Shared.Toggleable;
 
 namespace Content.Shared.Clothing.EntitySystems;
@@ -23,6 +24,8 @@ public sealed class ToggleClothingSystem : EntitySystem
         SubscribeLocalEvent<ToggleClothingComponent, GetItemActionsEvent>(OnGetActions);
         SubscribeLocalEvent<ToggleClothingComponent, ToggleActionEvent>(OnToggleAction);
         SubscribeLocalEvent<ToggleClothingComponent, ClothingGotUnequippedEvent>(OnUnequipped);
+
+        SubscribeLocalEvent<ToggleClothingComponent, ItemToggledEvent>(OnToggled); // DeltaV
     }
 
     private void OnMapInit(Entity<ToggleClothingComponent> ent, ref MapInitEvent args)
@@ -52,6 +55,14 @@ public sealed class ToggleClothingSystem : EntitySystem
     private void OnToggleAction(Entity<ToggleClothingComponent> ent, ref ToggleActionEvent args)
     {
         args.Handled = _toggle.Toggle(ent.Owner, args.Performer);
+    }
+
+    /// <summary>
+    /// DeltaV - bugfix: keep the action's visual in line with the actual item toggle state
+    /// </summary>
+    private void OnToggled(Entity<ToggleClothingComponent> ent, ref ItemToggledEvent args)
+    {
+        _actions.SetToggled(ent.Comp.ActionEntity, args.Activated);
     }
 
     private void OnUnequipped(Entity<ToggleClothingComponent> ent, ref ClothingGotUnequippedEvent args)
