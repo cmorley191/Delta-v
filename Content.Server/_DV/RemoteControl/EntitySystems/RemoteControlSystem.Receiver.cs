@@ -140,6 +140,9 @@ public sealed partial class RemoteControlSystem : SharedRemoteControlSystem
         Action orderAction
     )
     {
+        if (args.User == receiver.Owner)
+            return;
+
         if (!TryComp<RemoteControlComponent>(args.Control, out var controlComp) ||
             controlComp.ChannelName != receiver.Comp.ChannelName)
             return;

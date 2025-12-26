@@ -233,14 +233,18 @@ public sealed class ItemToggleSystem : EntitySystem
         if (predicted)
         {
             _audio.PlayPredicted(soundToPlay, uid, user);
+            // DeltaV - start of user in toggle popup string
             if (showPopup && ent.Comp.PopupActivate != null && user != null)
-                _popup.PopupClient(Loc.GetString(ent.Comp.PopupActivate), user.Value, user.Value);
+                _popup.PopupClient(Loc.GetString(ent.Comp.PopupActivate, ("user", user.Value)), user.Value, user.Value);
+            // DeltaV - end of user in toggle popup string
         }
         else
         {
             _audio.PlayPvs(soundToPlay, uid);
+            // DeltaV - start of user in toggle popup string
             if (showPopup && ent.Comp.PopupActivate != null && user != null)
-                _popup.PopupEntity(Loc.GetString(ent.Comp.PopupActivate), user.Value, user.Value);
+                _popup.PopupEntity(Loc.GetString(ent.Comp.PopupActivate, ("user", user.Value)), user.Value, user.Value);
+            // DeltaV - end of user in toggle popup string
         }
 
         comp.Activated = true;
@@ -261,14 +265,18 @@ public sealed class ItemToggleSystem : EntitySystem
         if (predicted)
         {
             _audio.PlayPredicted(soundToPlay, uid, user);
+            // DeltaV - start of user in toggle popup string
             if (showPopup && ent.Comp.PopupDeactivate != null && user != null)
-                _popup.PopupClient(Loc.GetString(ent.Comp.PopupDeactivate), user.Value, user.Value);
+                _popup.PopupClient(Loc.GetString(ent.Comp.PopupDeactivate, ("user", user.Value)), user.Value, user.Value);
+            // DeltaV - end of user in toggle popup string
         }
         else
         {
             _audio.PlayPvs(soundToPlay, uid);
+            // DeltaV - start of user in toggle popup string
             if (showPopup && ent.Comp.PopupDeactivate != null && user != null)
-                _popup.PopupEntity(Loc.GetString(ent.Comp.PopupDeactivate), user.Value, user.Value);
+                _popup.PopupEntity(Loc.GetString(ent.Comp.PopupDeactivate, ("user", user.Value)), user.Value, user.Value);
+            // DeltaV - end of user in toggle popup string
         }
 
         comp.Activated = false;
